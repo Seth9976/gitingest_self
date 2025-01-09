@@ -1,0 +1,32 @@
+name: Unzip Code
+on: [push]
+
+jobs:
+  unzip:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}  # 确保这里正确引用了 GITHUB_TOKEN
+
+      - name: List files (for debugging)
+        run: ls -la
+
+      - name: Unzip project.zip
+        run: |
+          if [ -f project.zip ]; then
+            unzip -o project.zip -d .  # 使用 -o 选项强制覆盖文件
+            rm project.zip
+          else
+            echo "Error: project.zip not found!"
+            exit 1
+          fi
+
+      - name: Commit changes
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git add .
+          git commit -m "Unzipped project.zip" || echo "No changes to commit"
+          git push
